@@ -55,6 +55,8 @@ class Board(BaseBoard):
 
     def piece_at(self, square: int) -> Piece | None:
         """Return the Piece on the given square, or None if empty."""
+        if not on_board(file_of(square), rank_of(square)):
+            return None
         return self.pieces[square]
 
     def pieces_of(
@@ -258,7 +260,7 @@ class Board(BaseBoard):
                 target_file, target_rank = file_of(square) + df, rank_of(square) + dr
                 target_square = sq(target_file, target_rank)
                 if on_board(target_file, target_rank):
-                    if self.piece_at(target_square is not None):
+                    if self.piece_at(target_square) is not None:
                         if self.piece_at(target_square).color == color:
                             if self.piece_at(target_square).kind == piece_kind:
                                 return True
@@ -281,6 +283,8 @@ class Board(BaseBoard):
                     ):
                         if self.piece_at(target_square).kind == piece_type:
                             return True
+                        else:
+                            cont = 0
                     else:
                         cont = 0
             return False
@@ -334,9 +338,8 @@ class Board(BaseBoard):
     def is_in_check(self, color: Color | None = None) -> bool:
         if color is None:
             color = self.side_to_move
-        square = self.pieces_of(color, KING)
-        square = square[0]
-        if is_attacked(square, color.other):
+        square = next(self.pieces_of(color, KING))[0]
+        if self.is_attacked(square, color.other):
             return True
         else:
             return False
@@ -348,13 +351,15 @@ class Board(BaseBoard):
             pass
         elif color == BLACK:
             pass
+        return []
 
     def legal_moves(self):
-        moves = self.pseudo_legal_moves()
-        for move in moves:
+        pseudo_legal_moves = self.pseudo_legal_moves()
+        moves = []
+        for move in pseudo_legal_moves:
             self.make_move(move)
-            if self.is_in_check():
-                moves.remove(move)
-            self.undo_move
-        moves.extend(castling_moves())
+            if not self.is_in_check(self.side_to_move.other):
+                moves.append(move)
+            self.undo_move()
+        moves.extend(self.castling_moves())
         return moves
