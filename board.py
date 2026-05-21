@@ -75,7 +75,7 @@ class Board(BaseBoard):
                 target_file, target_rank = file_of(square) + df, rank_of(square) + dr
                 target_square = sq(target_file, target_rank)
                 if on_board(target_file, target_rank) and (
-                    self.piece_at(target_square) == None
+                    self.piece_at(target_square) is None
                     or self.piece_at(target_square).color != color
                 ):
                     moves.append(Move(square, target_square))
@@ -105,7 +105,7 @@ class Board(BaseBoard):
                     target_file, target_rank = target_file + df, target_rank + dr
                     target_square = sq(target_file, target_rank)
                     if on_board(target_file, target_rank) and (
-                        self.piece_at(target_square) == None
+                        self.piece_at(target_square) is None
                     ):
                         moves.append(Move(square, target_square))
                     elif on_board(target_file, target_rank) and (
@@ -142,20 +142,20 @@ class Board(BaseBoard):
                 target_file, target_rank = file_of(square) + 0, rank_of(square) + 1
                 target_square = sq(target_file, target_rank)
                 if on_board(target_file, target_rank) and (
-                    self.piece_at(target_square) == None
+                    self.piece_at(target_square) is None
                 ):
                     moves.append(Move(square, target_square))
                 target_file, target_rank = file_of(square) + 1, rank_of(square) + 1
                 target_square = sq(target_file, target_rank)
                 if on_board(target_file, target_rank) and (
-                    self.piece_at(target_square) != None
+                    self.piece_at(target_square) is not None
                 ):
                     if self.piece_at(target_square).color != color:
                         moves.append(Move(square, target_square))
                 target_file, target_rank = file_of(square) - 1, rank_of(square) + 1
                 target_square = sq(target_file, target_rank)
                 if on_board(target_file, target_rank) and (
-                    self.piece_at(target_square) != None
+                    self.piece_at(target_square) is not None
                 ):
                     if self.piece_at(target_square).color != color:
                         moves.append(Move(square, target_square))
@@ -163,8 +163,8 @@ class Board(BaseBoard):
                 target_square = sq(target_file, target_rank)
                 if (
                     on_board(target_file, target_rank)
-                    and (self.piece_at(target_square) == None)
-                    and (self.piece_at(target_square - 8) == None)
+                    and (self.piece_at(target_square) is None)
+                    and (self.piece_at(target_square - 8) is None)
                 ):
                     if target_rank == 3:
                         moves.append(Move(square, target_square))
@@ -172,20 +172,20 @@ class Board(BaseBoard):
                 target_file, target_rank = file_of(square) + 0, rank_of(square) - 1
                 target_square = sq(target_file, target_rank)
                 if on_board(target_file, target_rank) and (
-                    self.piece_at(target_square) == None
+                    self.piece_at(target_square) is None
                 ):
                     moves.append(Move(square, target_square))
                 target_file, target_rank = file_of(square) + 1, rank_of(square) - 1
                 target_square = sq(target_file, target_rank)
                 if on_board(target_file, target_rank) and (
-                    self.piece_at(target_square) != None
+                    self.piece_at(target_square) is not None
                 ):
                     if self.piece_at(target_square).color != color:
                         moves.append(Move(square, target_square))
                 target_file, target_rank = file_of(square) - 1, rank_of(square) - 1
                 target_square = sq(target_file, target_rank)
                 if on_board(target_file, target_rank) and (
-                    self.piece_at(target_square) != None
+                    self.piece_at(target_square) is not None
                 ):
                     if self.piece_at(target_square).color != color:
                         moves.append(Move(square, target_square))
@@ -193,8 +193,8 @@ class Board(BaseBoard):
                 target_square = sq(target_file, target_rank)
                 if (
                     on_board(target_file, target_rank)
-                    and (self.piece_at(target_square) == None)
-                    and (self.piece_at(target_square - 8) == None)
+                    and (self.piece_at(target_square) is None)
+                    and (self.piece_at(target_square - 8) is None)
                 ):
                     if target_rank == 4:
                         moves.append(Move(square, target_square))
@@ -219,7 +219,7 @@ class Board(BaseBoard):
     def make_move(self, move: Move) -> None:
         halfmove = self.state.halfmove_clock
         if (
-            self.piece_at(move.to_sq) != None
+            self.piece_at(move.to_sq) is not None
             or self.pieces[move.from_sq].kind == Kind.PAWN
         ):
             halfmove = 0
@@ -257,12 +257,11 @@ class Board(BaseBoard):
             for df, dr in offsets:
                 target_file, target_rank = file_of(square) + df, rank_of(square) + dr
                 target_square = sq(target_file, target_rank)
-                if (
-                    on_board(target_file, target_rank)
-                    and self.piece_at(target_square).color == color
-                ):
-                    if self.piece_at(target_square).kind == piece_kind:
-                        return True
+                if on_board(target_file, target_rank):
+                    if self.piece_at(target_square is not None):
+                        if self.piece_at(target_square).color == color:
+                            if self.piece_at(target_square).kind == piece_kind:
+                                return True
             return False
 
         def slider_attacking_square(self, offsets, square, color, piece_type):
@@ -274,7 +273,7 @@ class Board(BaseBoard):
                     target_file, target_rank = target_file + df, target_rank + dr
                     target_square = sq(target_file, target_rank)
                     if on_board(target_file, target_rank) and (
-                        self.piece_at(target_square) == None
+                        self.piece_at(target_square) is None
                     ):
                         pass
                     elif on_board(target_file, target_rank) and (
@@ -287,36 +286,52 @@ class Board(BaseBoard):
             return False
 
         def pawn_attacking_square(self, square, color, piece_type):
-            if (
-                self.piece_at(square - 7).color == WHITE
-                and self.piece_at(square - 7).kind == piece_type
-            ) or (
-                self.piece_at(square - 9).color == WHITE
-                and self.piece_at(square - 9).kind == piece_type
-            ):
-                return True
-            elif (
-                self.piece_at(square + 7).color == BLACK
-                and self.piece_at(square + 7).kind == piece_type
-            ) or (
-                self.piece_at(square + 9).color == BLACK
-                and self.piece_at(square + 9).kind == piece_type
-            ):
-                return True
-            else:
-                return False
+            if self.piece_at(square - 7) is not None:
+                if (
+                    self.piece_at(square - 7).color == WHITE
+                    and self.piece_at(square - 7).color == color
+                    and self.piece_at(square - 7).kind == piece_type
+                ):
+                    return True
+            if self.piece_at(square - 9) is not None:
+                if (
+                    self.piece_at(square - 9).color == WHITE
+                    and self.piece_at(square - 9).color == color
+                    and self.piece_at(square - 9).kind == piece_type
+                ):
+                    return True
+            if self.piece_at(square + 7) is not None:
+                if (
+                    self.piece_at(square + 7).color == BLACK
+                    and self.piece_at(square + 7).color == color
+                    and self.piece_at(square + 7).kind == piece_type
+                ):
+                    return True
+            if self.piece_at(square + 9) is not None:
+                if (
+                    self.piece_at(square + 9).color == BLACK
+                    and self.piece_at(square + 9).color == color
+                    and self.piece_at(square + 9).kind == piece_type
+                ):
+                    return True
+            return False
 
-        if leaper_attacking_square(KNIGHT_OFFSETS, square, by_color, KNIGHT):
+        if leaper_attacking_square(self, KNIGHT_OFFSETS, square, by_color, KNIGHT):
             return True
-        if leaper_attacking_square(KING_OFFSETS, square, by_color, KING):
+        if leaper_attacking_square(self, KING_OFFSETS, square, by_color, KING):
             return True
-        if slider_attacking_square(BISHOP_DIRECTIONS, square, by_color, BISHOP):
+        if slider_attacking_square(self, BISHOP_DIRECTIONS, square, by_color, BISHOP):
             return True
-        if slider_attacking_square(ROOK_DIRECTIONS, square, by_color, ROOK):
+        if slider_attacking_square(self, ROOK_DIRECTIONS, square, by_color, ROOK):
             return True
-        if slider_attacking_square(QUEEN_DIRECTIONS, square, by_color, QUEEN):
+        if slider_attacking_square(self, QUEEN_DIRECTIONS, square, by_color, QUEEN):
             return True
-        if pawn_attacking_square(square, by_color, PAWN):
-            pass
+        if pawn_attacking_square(self, square, by_color, PAWN):
+            return True
         else:
             return False
+
+    def is_in_check(self, color: Color | None = None) -> bool:
+        if color is None:
+            color = self.side_to_move
+        square = self.pieces_of(color, KING)[0]
