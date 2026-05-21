@@ -334,7 +334,8 @@ class Board(BaseBoard):
     def is_in_check(self, color: Color | None = None) -> bool:
         if color is None:
             color = self.side_to_move
-        square = self.pieces_of(color, KING)[0]
+        square = self.pieces_of(color, KING)
+        square = square[0]
         if is_attacked(square, color.other):
             return True
         else:
