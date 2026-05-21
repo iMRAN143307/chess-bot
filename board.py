@@ -353,7 +353,7 @@ class Board(BaseBoard):
         moves = self.pseudo_legal_moves()
         for move in moves:
             self.make_move(move)
-            if is_in_check():
+            if self.is_in_check():
                 moves.remove(move)
             self.undo_move
         moves.extend(castling_moves())
