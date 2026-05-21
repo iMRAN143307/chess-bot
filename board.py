@@ -335,3 +335,25 @@ class Board(BaseBoard):
         if color is None:
             color = self.side_to_move
         square = self.pieces_of(color, KING)[0]
+        if is_attacked(square, color.other):
+            return True
+        else:
+            return False
+
+    def castling_moves(self, color: Color | None = None):
+        if color is None:
+            color = self.side_to_move
+        if color == WHITE:
+            pass
+        elif color == BLACK:
+            pass
+
+    def legal_moves(self):
+        moves = self.pseudo_legal_moves()
+        for move in moves:
+            self.make_move(move)
+            if is_in_check():
+                moves.remove(move)
+            self.undo_move
+        moves.extend(castling_moves())
+        return moves
