@@ -31,6 +31,7 @@ from chessdk import (
     ROOK,
     ROOK_DIRECTIONS,
     WHITE,
+    CastlingRights,
     Color,
     Kind,
     Move,
@@ -50,6 +51,10 @@ class Board(BaseBoard):
     def __init__(self, state=None):
         super().__init__(state)
         self._history = []
+        CastlingRights.white_kingside = True
+        CastlingRights.white_queenside = True
+        CastlingRights.black_kingside = True
+        CastlingRights.black_queenside = True
 
     # === Stage 1: Squares and Pieces ===
 
@@ -345,13 +350,32 @@ class Board(BaseBoard):
             return False
 
     def castling_moves(self, color: Color | None = None):
+        moves = []
         if color is None:
             color = self.side_to_move
         if color == WHITE:
-            pass
+            if CastlingRights.white_kingside:
+                if self.piece_at(5) is None and self.piece_at(6) is None:
+                    if not self.is_in_check():
+                        if not self.is_attacked(5, color.other) and not self.is_attacked(6, color.other):
+                            moves.append(Move(4, 6))
+            if CastlingRights.white_queenside:
+                if self.piece_at(2) is None and self.piece_at(3) is None and self.piece_at(1) is None:
+                    if not self.is_in_check():
+                        if not self.is_attacked(2, color.other) and not self.is_attacked(3, color.other):
+                            moves.append(Move(4, 2))
         elif color == BLACK:
-            pass
-        return []
+            if CastlingRights.black_kingside:
+                if self.piece_at(61) is None and self.piece_at(62) is None:
+                    if not self.is_in_check():
+                        if not self.is_attacked(61, color.other) and not self.is_attacked(62, color.other):
+                            moves.append(Move(60, 62))
+            if CastlingRights.black_queenside:
+                if self.piece_at(59) is None and self.piece_at(58) is None and self.piece_at(57) is None:
+                    if not self.is_in_check():
+                        if not self.is_attacked(59, color.other) and not self.is_attacked(58, color.other):
+                            moves.append(Move(60, 58))
+        return moves
 
     def legal_moves(self):
         pseudo_legal_moves = self.pseudo_legal_moves()
