@@ -51,10 +51,6 @@ class Board(BaseBoard):
     def __init__(self, state=None):
         super().__init__(state)
         self._history = []
-        CastlingRights.white_kingside = True
-        CastlingRights.white_queenside = True
-        CastlingRights.black_kingside = True
-        CastlingRights.black_queenside = True
 
     # === Stage 1: Squares and Pieces ===
 
@@ -240,7 +236,6 @@ class Board(BaseBoard):
             self.state.en_passant,
             self.state.halfmove_clock,
         )
-
         self.state.halfmove_clock = halfmove
         self.pieces[move.to_sq] = copy.deepcopy(self.pieces[move.from_sq])
         self.pieces[move.from_sq] = None
@@ -248,6 +243,55 @@ class Board(BaseBoard):
             self.state.fullmove_number += 1
         self.state.side_to_move = self.state.side_to_move.other
         self._history.append(MR)
+
+        if self.state.side_to_move == Color.WHITE:
+            if not self.pieces[7]:
+                self.state.castling.white_kingside = False
+            elif (
+                not self.pieces[7].color == Color.WHITE
+                or not self.pieces[7].kind == Kind.ROOK
+            ):
+                self.state.castling.white_kingside = False
+            if not self.pieces[1]:
+                self.state.castling.white_queenside = False
+            elif (
+                not self.pieces[1].color == Color.WHITE
+                or not self.pieces[1].kind == Kind.ROOK
+            ):
+                self.state.castling.white_queenside = False
+            if not self.pieces[4]:
+                self.state.castling.white_kingside = False
+                self.state.castling.white_queenside = False
+            elif (
+                not self.pieces[4].color == Color.WHITE
+                or not self.pieces[4].kind == Kind.KING
+            ):
+                self.state.castling.white_kingside = False
+                self.state.castling.white_queenside = False
+        else:
+            if not self.pieces[63]:
+                self.state.castling.black_kingside = False
+            elif (
+                not self.pieces[63].color == Color.BLACK
+                or not self.pieces[63].kind == Kind.ROOK
+            ):
+                self.state.castling.black_kingside = False
+            if not self.pieces[56]:
+                self.state.castling.black_queenside = False
+            elif (
+                not self.pieces[56].color == Color.BLACK
+                or not self.pieces[56].kind == Kind.ROOK
+            ):
+                self.state.castling.black_queenside = False
+            if not self.pieces[59]:
+                self.state.castling.black_kingside = False
+                self.state.castling.black_queenside = False
+            elif (
+                not self.pieces[59].color == Color.BLACK
+                or not self.pieces[59].kind == Kind.KING
+            ):
+                self.state.castling.black_kingside = False
+                self.state.castling.black_queenside = False
 
     def undo_move(self) -> None:
         mr = self._history.pop()
@@ -257,6 +301,7 @@ class Board(BaseBoard):
         if self.state.side_to_move == Color.WHITE:
             self.state.fullmove_number -= 1
         self.state.side_to_move = self.state.side_to_move.other
+        self.state.castling = mr.prev_castling
 
     def is_attacked(self, square: int, by_color: Color) -> bool:
         # True if any piece of 'by_color' attacks 'square'.
@@ -351,6 +396,10 @@ class Board(BaseBoard):
 
     def castling_moves(self, color: Color | None = None):
         moves = []
+        CastlingRights.white_kingside = self.state.castling.white_kingside
+        CastlingRights.white_queenside = self.state.castling.white_queenside
+        CastlingRights.black_kingside = self.state.castling.black_kingside
+        CastlingRights.black_queenside = self.state.castling.black_queenside
         if color is None:
             color = self.side_to_move
         if color == WHITE:
