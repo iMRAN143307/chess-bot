@@ -237,64 +237,91 @@ class Board(BaseBoard):
             self.state.halfmove_clock,
         )
         self.state.halfmove_clock = halfmove
+        if self.pieces[move.from_sq].kind == Kind.KING and (
+            move.from_sq == move.to_sq + 2 or move.from_sq == move.to_sq - 2
+        ):
+            if move.to_sq == 2:
+                self.pieces[3] = copy.deepcopy(self.pieces[0])
+                self.pieces[0] = None
+            elif move.to_sq == 6:
+                self.pieces[5] = copy.deepcopy(self.pieces[7])
+                self.pieces[7] = None
+            elif move.to_sq == 58:
+                self.pieces[59] = copy.deepcopy(self.pieces[56])
+                self.pieces[56] = None
+            elif move.to_sq == 62:
+                self.pieces[61] = copy.deepcopy(self.pieces[63])
+                self.pieces[63] = None
         self.pieces[move.to_sq] = copy.deepcopy(self.pieces[move.from_sq])
         self.pieces[move.from_sq] = None
         if self.state.side_to_move == Color.BLACK:
             self.state.fullmove_number += 1
         self.state.side_to_move = self.state.side_to_move.other
         self._history.append(MR)
-
-        if self.state.side_to_move == Color.WHITE:
-            if not self.pieces[7]:
-                self.state.castling.white_kingside = False
-            elif (
-                not self.pieces[7].color == Color.WHITE
-                or not self.pieces[7].kind == Kind.ROOK
-            ):
-                self.state.castling.white_kingside = False
-            if not self.pieces[1]:
-                self.state.castling.white_queenside = False
-            elif (
-                not self.pieces[1].color == Color.WHITE
-                or not self.pieces[1].kind == Kind.ROOK
-            ):
-                self.state.castling.white_queenside = False
-            if not self.pieces[4]:
-                self.state.castling.white_kingside = False
-                self.state.castling.white_queenside = False
-            elif (
-                not self.pieces[4].color == Color.WHITE
-                or not self.pieces[4].kind == Kind.KING
-            ):
-                self.state.castling.white_kingside = False
-                self.state.castling.white_queenside = False
-        else:
-            if not self.pieces[63]:
-                self.state.castling.black_kingside = False
-            elif (
-                not self.pieces[63].color == Color.BLACK
-                or not self.pieces[63].kind == Kind.ROOK
-            ):
-                self.state.castling.black_kingside = False
-            if not self.pieces[56]:
-                self.state.castling.black_queenside = False
-            elif (
-                not self.pieces[56].color == Color.BLACK
-                or not self.pieces[56].kind == Kind.ROOK
-            ):
-                self.state.castling.black_queenside = False
-            if not self.pieces[59]:
-                self.state.castling.black_kingside = False
-                self.state.castling.black_queenside = False
-            elif (
-                not self.pieces[59].color == Color.BLACK
-                or not self.pieces[59].kind == Kind.KING
-            ):
-                self.state.castling.black_kingside = False
-                self.state.castling.black_queenside = False
+        if not self.pieces[7]:
+            self.state.castling.white_kingside = False
+        elif (
+            not self.pieces[7].color == Color.WHITE
+            or not self.pieces[7].kind == Kind.ROOK
+        ):
+            self.state.castling.white_kingside = False
+        if not self.pieces[0]:
+            self.state.castling.white_queenside = False
+        elif (
+            not self.pieces[0].color == Color.WHITE
+            or not self.pieces[0].kind == Kind.ROOK
+        ):
+            self.state.castling.white_queenside = False
+        if not self.pieces[4]:
+            self.state.castling.white_kingside = False
+            self.state.castling.white_queenside = False
+        elif (
+            not self.pieces[4].color == Color.WHITE
+            or not self.pieces[4].kind == Kind.KING
+        ):
+            self.state.castling.white_kingside = False
+            self.state.castling.white_queenside = False
+        if not self.pieces[63]:
+            self.state.castling.black_kingside = False
+        elif (
+            not self.pieces[63].color == Color.BLACK
+            or not self.pieces[63].kind == Kind.ROOK
+        ):
+            self.state.castling.black_kingside = False
+        if not self.pieces[56]:
+            self.state.castling.black_queenside = False
+        elif (
+            not self.pieces[56].color == Color.BLACK
+            or not self.pieces[56].kind == Kind.ROOK
+        ):
+            self.state.castling.black_queenside = False
+        if not self.pieces[60]:
+            self.state.castling.black_kingside = False
+            self.state.castling.black_queenside = False
+        elif (
+            not self.pieces[60].color == Color.BLACK
+            or not self.pieces[60].kind == Kind.KING
+        ):
+            self.state.castling.black_kingside = False
+            self.state.castling.black_queenside = False
 
     def undo_move(self) -> None:
         mr = self._history.pop()
+        if self.pieces[mr.move.to_sq].kind == Kind.KING and (
+            mr.move.from_sq == mr.move.to_sq + 2 or mr.move.from_sq == mr.move.to_sq - 2
+        ):
+            if mr.move.to_sq == 2:
+                self.pieces[0] = copy.deepcopy(self.pieces[3])
+                self.pieces[3] = None
+            elif mr.move.to_sq == 6:
+                self.pieces[7] = copy.deepcopy(self.pieces[5])
+                self.pieces[5] = None
+            elif mr.move.to_sq == 58:
+                self.pieces[56] = copy.deepcopy(self.pieces[59])
+                self.pieces[59] = None
+            elif mr.move.to_sq == 62:
+                self.pieces[63] = copy.deepcopy(self.pieces[61])
+                self.pieces[61] = None
         self.pieces[mr.move.from_sq] = copy.deepcopy(self.pieces[mr.move.to_sq])
         self.pieces[mr.captured_square] = mr.captured
         self.state.halfmove_clock = mr.prev_halfmove
