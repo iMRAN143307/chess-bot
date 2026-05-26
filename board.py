@@ -138,7 +138,7 @@ class Board(BaseBoard):
     # === Stage 4: Pawns ===
 
     def _pawn_moves(self, color: Color) -> list[Move]:
-        """Pseudo-legal pawn moves for `color`. (No en passant or promotion yet.)"""
+        """Pseudo-legal pawn moves for `color`."""
         moves = []
         for square, _ in self.pieces_of(color, PAWN):
             if color == WHITE:
@@ -201,7 +201,27 @@ class Board(BaseBoard):
                 ):
                     if target_rank == 4:
                         moves.append(Move(square, target_square))
-
+        for m in moves:
+            if (
+                rank_of(m.to_sq) == 0
+                and self.side_to_move == Color.BLACK
+                and not m.promotion
+            ):
+                moves.append(Move(m.from_sq, m.to_sq, Kind.KNIGHT))
+                moves.append(Move(m.from_sq, m.to_sq, Kind.BISHOP))
+                moves.append(Move(m.from_sq, m.to_sq, Kind.ROOK))
+                moves.append(Move(m.from_sq, m.to_sq, Kind.QUEEN))
+                moves.remove(m)
+            elif (
+                rank_of(m.to_sq) == 7
+                and self.side_to_move == Color.WHITE
+                and not m.promotion
+            ):
+                moves.append(Move(m.from_sq, m.to_sq, Kind.KNIGHT))
+                moves.append(Move(m.from_sq, m.to_sq, Kind.BISHOP))
+                moves.append(Move(m.from_sq, m.to_sq, Kind.ROOK))
+                moves.append(Move(m.from_sq, m.to_sq, Kind.QUEEN))
+                moves.remove(m)
         return moves
 
     # === Wiring ===
