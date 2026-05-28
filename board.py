@@ -218,27 +218,34 @@ class Board(BaseBoard):
                     target_square = sq(target_file, target_rank)
                     if self.state.en_passant == target_square:
                         moves.append(Move(square, target_square))
+        promo = []
+        to_rm = []
         for m in moves:
             if (
                 rank_of(m.to_sq) == 0
                 and self.side_to_move == Color.BLACK
                 and not m.promotion
             ):
-                moves.append(Move(m.from_sq, m.to_sq, Kind.KNIGHT))
-                moves.append(Move(m.from_sq, m.to_sq, Kind.BISHOP))
-                moves.append(Move(m.from_sq, m.to_sq, Kind.ROOK))
-                moves.append(Move(m.from_sq, m.to_sq, Kind.QUEEN))
-                moves.remove(m)
+                promo.append(Move(m.from_sq, m.to_sq, Kind.KNIGHT))
+                promo.append(Move(m.from_sq, m.to_sq, Kind.BISHOP))
+                promo.append(Move(m.from_sq, m.to_sq, Kind.ROOK))
+                promo.append(Move(m.from_sq, m.to_sq, Kind.QUEEN))
+                to_rm.append(m)
             elif (
                 rank_of(m.to_sq) == 7
                 and self.side_to_move == Color.WHITE
                 and not m.promotion
             ):
-                moves.append(Move(m.from_sq, m.to_sq, Kind.KNIGHT))
-                moves.append(Move(m.from_sq, m.to_sq, Kind.BISHOP))
-                moves.append(Move(m.from_sq, m.to_sq, Kind.ROOK))
-                moves.append(Move(m.from_sq, m.to_sq, Kind.QUEEN))
-                moves.remove(m)
+                promo.append(Move(m.from_sq, m.to_sq, Kind.KNIGHT))
+                promo.append(Move(m.from_sq, m.to_sq, Kind.BISHOP))
+                promo.append(Move(m.from_sq, m.to_sq, Kind.ROOK))
+                promo.append(Move(m.from_sq, m.to_sq, Kind.QUEEN))
+                to_rm.append(m)
+        if promo != []:
+            moves.extend(promo)
+        if to_rm != []:
+            for move_obj in to_rm:
+                moves.remove(move_obj)
         return moves
 
     # === Wiring ===
@@ -404,7 +411,7 @@ class Board(BaseBoard):
         if mr.move.promotion:
             self.pieces[mr.move.from_sq] = Piece(Kind.PAWN, self.state.side_to_move)
         self.state.en_passant = mr.prev_en_passant
-        if self.state.en_passant and self.pieces[mr.move.from_sq].kind == Kind.PAWN:
+        if (self.state.en_passant == mr.move.to_sq) and self.pieces[mr.move.from_sq].kind == Kind.PAWN:
             if self.state.side_to_move == Color.WHITE:
                 self.pieces[mr.move.to_sq - 8] = Piece(
                     Kind.PAWN, self.state.side_to_move.other
