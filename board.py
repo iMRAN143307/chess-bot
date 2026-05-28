@@ -140,6 +140,7 @@ class Board(BaseBoard):
     def _pawn_moves(self, color: Color) -> list[Move]:
         """Pseudo-legal pawn moves for `color`."""
         moves = []
+
         for square, _ in self.pieces_of(color, PAWN):
             if color == WHITE:
                 target_file, target_rank = file_of(square) + 0, rank_of(square) + 1
@@ -171,6 +172,14 @@ class Board(BaseBoard):
                 ):
                     if target_rank == 3:
                         moves.append(Move(square, target_square))
+                for offsets in [(1, 1), (-1, 1)]:
+                    target_file, target_rank = (
+                        file_of(square) + offsets[0],
+                        rank_of(square) + offsets[1],
+                    )
+                    target_square = sq(target_file, target_rank)
+                    if self.state.en_passant == target_square:
+                        moves.append(Move(square, target_square))
             if color == BLACK:
                 target_file, target_rank = file_of(square) + 0, rank_of(square) - 1
                 target_square = sq(target_file, target_rank)
@@ -200,6 +209,14 @@ class Board(BaseBoard):
                     and (self.piece_at(target_square - 8) is None)
                 ):
                     if target_rank == 4:
+                        moves.append(Move(square, target_square))
+                for offsets in [(1, -1), (-1, -1)]:
+                    target_file, target_rank = (
+                        file_of(square) + offsets[0],
+                        rank_of(square) + offsets[1],
+                    )
+                    target_square = sq(target_file, target_rank)
+                    if self.state.en_passant == target_square:
                         moves.append(Move(square, target_square))
         for m in moves:
             if (
@@ -278,6 +295,41 @@ class Board(BaseBoard):
             self.state.fullmove_number += 1
         self.state.side_to_move = self.state.side_to_move.other
         self._history.append(MR)
+        if move.to_sq == self.state.en_passant:
+            if self.state.side_to_move.other == Color.WHITE:
+                self.pieces[move.to_sq - 8] = None
+            else:
+                self.pieces[move.to_sq + 8] = None
+        if self.pieces[move.to_sq].kind == Kind.PAWN:
+            if (
+                self.state.side_to_move.other == Color.WHITE
+                and move.from_sq + 16 == move.to_sq
+            ):
+                self.state.en_passant = move.from_sq + 8
+            elif (
+                self.state.side_to_move.other == Color.BLACK
+                and move.from_sq - 16 == move.to_sq
+            ):
+                self.state.en_passant = move.from_sq - 8
+        else:
+            self.state.en_passant = None
+        piece_promoted_to = move.promotion
+        if self.pieces[move.to_sq].kind == Kind.PAWN:
+            if (
+                rank_of(move.to_sq) == 7
+                and self.state.side_to_move.other == Color.WHITE
+            ):
+                self.pieces[move.to_sq] = Piece(
+                    piece_promoted_to, self.state.side_to_move.other
+                )
+            elif (
+                rank_of(move.to_sq) == 0
+                and self.state.side_to_move.other == Color.BLACK
+            ):
+                self.pieces[move.to_sq] = Piece(
+                    piece_promoted_to, self.state.side_to_move.other
+                )
+
         if not self.pieces[7]:
             self.state.castling.white_kingside = False
         elif (
@@ -349,6 +401,18 @@ class Board(BaseBoard):
             self.state.fullmove_number -= 1
         self.state.side_to_move = self.state.side_to_move.other
         self.state.castling = mr.prev_castling
+        if mr.move.promotion:
+            self.pieces[mr.move.from_sq] = Piece(Kind.PAWN, self.state.side_to_move)
+        self.state.en_passant = mr.prev_en_passant
+        if self.state.en_passant and self.pieces[mr.move.from_sq].kind == Kind.PAWN:
+            if self.state.side_to_move == Color.WHITE:
+                self.pieces[mr.move.to_sq - 8] = Piece(
+                    Kind.PAWN, self.state.side_to_move.other
+                )
+            else:
+                self.pieces[mr.move.to_sq + 8] = Piece(
+                    Kind.PAWN, self.state.side_to_move.other
+                )
 
     def is_attacked(self, square: int, by_color: Color) -> bool:
         # True if any piece of 'by_color' attacks 'square'.
@@ -435,9 +499,12 @@ class Board(BaseBoard):
     def is_in_check(self, color: Color | None = None) -> bool:
         if color is None:
             color = self.side_to_move
-        square = next(self.pieces_of(color, KING))[0]
-        if self.is_attacked(square, color.other):
-            return True
+        square = next(self.pieces_of(color, KING), [404])[0]
+        if square != 404:
+            if self.is_attacked(square, color.other):
+                return True
+            else:
+                return False
         else:
             return False
 
