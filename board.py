@@ -302,7 +302,10 @@ class Board(BaseBoard):
             self.state.fullmove_number += 1
         self.state.side_to_move = self.state.side_to_move.other
         self._history.append(MR)
-        if move.to_sq == self.state.en_passant:
+        if (
+            move.to_sq == self.state.en_passant
+            and self.pieces[move.to_sq].kind == Kind.PAWN
+        ):
             if self.state.side_to_move.other == Color.WHITE:
                 self.pieces[move.to_sq - 8] = None
             else:
@@ -410,7 +413,9 @@ class Board(BaseBoard):
         if mr.move.promotion:
             self.pieces[mr.move.from_sq] = Piece(Kind.PAWN, self.state.side_to_move)
         self.state.en_passant = mr.prev_en_passant
-        if (self.state.en_passant == mr.move.to_sq) and self.pieces[mr.move.from_sq].kind == Kind.PAWN:
+        if (self.state.en_passant == mr.move.to_sq) and self.pieces[
+            mr.move.from_sq
+        ].kind == Kind.PAWN:
             if self.state.side_to_move == Color.WHITE:
                 self.pieces[mr.move.to_sq - 8] = Piece(
                     Kind.PAWN, self.state.side_to_move.other

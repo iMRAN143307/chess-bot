@@ -31,19 +31,53 @@ def perft(board: Board, depth: int) -> int:
     "name, fen, depth, expected",
     [
         ("start-d1", "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", 1, 20),
-        ("start-d2", "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", 2, 400),
-        ("start-d3", "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", 3, 8902),
-        ("kiwipete-d1", "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1", 1, 48),
-        ("kiwipete-d2", "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1", 2, 2039),
-        ("kiwipete-d3", "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1", 3, 97862),
+        (
+            "start-d2",
+            "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+            2,
+            400,
+        ),
+        (
+            "start-d3",
+            "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+            3,
+            8902,
+        ),
+        (
+            "kiwipete-d1",
+            "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1",
+            1,
+            48,
+        ),
+        (
+            "kiwipete-d2",
+            "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1",
+            2,
+            2039,
+        ),
+        (
+            "kiwipete-d3",
+            "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1",
+            3,
+            97862,
+        ),
         ("pos3-d1", "8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - 0 1", 1, 14),
         ("pos3-d2", "8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - 0 1", 2, 191),
         ("pos3-d3", "8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - 0 1", 3, 2812),
         ("pos3-d4", "8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - 0 1", 4, 43238),
     ],
-    ids=lambda x: x if isinstance(x, str) and not x.startswith("rnb") and not x.startswith("r3k") and not x.startswith("8/2p") else None,
+    ids=lambda x: (
+        x
+        if isinstance(x, str)
+        and not x.startswith("rnb")
+        and not x.startswith("r3k")
+        and not x.startswith("8/2p")
+        else None
+    ),
 )
 def test_perft(name, fen, depth, expected):
     b = Board.from_fen(fen)
     got = perft(b, depth)
-    assert got == expected, f"perft({name}, depth {depth}): expected {expected}, got {got}"
+    assert got == expected, (
+        f"perft({name}, depth {depth}): expected {expected}, got {got}"
+    )
