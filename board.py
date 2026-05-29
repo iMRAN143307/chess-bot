@@ -206,7 +206,7 @@ class Board(BaseBoard):
                 if (
                     on_board(target_file, target_rank)
                     and (self.piece_at(target_square) is None)
-                    and (self.piece_at(target_square - 8) is None)
+                    and (self.piece_at(target_square + 8) is None)
                 ):
                     if target_rank == 4:
                         moves.append(Move(square, target_square))
@@ -307,6 +307,7 @@ class Board(BaseBoard):
                 self.pieces[move.to_sq - 8] = None
             else:
                 self.pieces[move.to_sq + 8] = None
+        self.state.en_passant = None
         if self.pieces[move.to_sq].kind == Kind.PAWN:
             if (
                 self.state.side_to_move.other == Color.WHITE
@@ -318,8 +319,6 @@ class Board(BaseBoard):
                 and move.from_sq - 16 == move.to_sq
             ):
                 self.state.en_passant = move.from_sq - 8
-        else:
-            self.state.en_passant = None
         piece_promoted_to = move.promotion
         if self.pieces[move.to_sq].kind == Kind.PAWN:
             if (
