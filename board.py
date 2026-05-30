@@ -177,9 +177,10 @@ class Board(BaseBoard):
                         file_of(square) + offsets[0],
                         rank_of(square) + offsets[1],
                     )
-                    target_square = sq(target_file, target_rank)
-                    if self.state.en_passant == target_square:
-                        moves.append(Move(square, target_square))
+                    if on_board(target_file, target_rank):
+                        target_square = sq(target_file, target_rank)
+                        if self.state.en_passant == target_square:
+                            moves.append(Move(square, target_square))
             if color == BLACK:
                 target_file, target_rank = file_of(square) + 0, rank_of(square) - 1
                 target_square = sq(target_file, target_rank)
@@ -215,9 +216,10 @@ class Board(BaseBoard):
                         file_of(square) + offsets[0],
                         rank_of(square) + offsets[1],
                     )
-                    target_square = sq(target_file, target_rank)
-                    if self.state.en_passant == target_square:
-                        moves.append(Move(square, target_square))
+                    if on_board(target_file, target_rank):
+                        target_square = sq(target_file, target_rank)
+                        if self.state.en_passant == target_square:
+                            moves.append(Move(square, target_square))
         promo = []
         to_rm = []
         for m in moves:
