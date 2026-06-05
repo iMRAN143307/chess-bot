@@ -1,0 +1,27 @@
+[Event "?"]
+[Site "?"]
+[Date "2026.06.04"]
+[Round "?"]
+[White "chess-bot-hangs-pieces"]
+[Black "imran-week3"]
+[Result "1/2-1/2"]
+[ECO "A00"]
+[GameDuration "00:00:07"]
+[GameEndTime "2026-06-04T20:04:30.272 EDT"]
+[GameStartTime "2026-06-04T20:04:22.889 EDT"]
+[Opening "Anderssen's Opening"]
+[PlyCount "113"]
+[Termination "illegal move"]
+[TimeControl "40/300"]
+
+1. a3 e5 2. h4 Bxa3 3. f4 exf4 4. e3 fxe3 5. b4 Bxc1 6. Ra6 bxa6 7. b5 exd2+
+8. Qxd2 Bxd2+ 9. Kxd2 axb5 10. Bc4 bxc4 11. Nc3 Qxh4 12. Ne4 Qxh1 13. Nh3 Qxg2+
+14. Nhf2 Qxe4 15. Nd3 cxd3 16. c4 Qxc4 17. Kd1 h6 18. Ke1 Qd5 19. Kd1 Ba6
+20. Kc1 Qg2 21. Kd1 d2 22. Kc2 Bc4 23. Kb1 Qh2 24. Kc2 d1=N+ 25. Kc1 Ba6
+26. Kxd1 Qf4 27. Ke1 Bb7 28. Kd1 Rh7 29. Ke1 a6 30. Kd1 Qf6 31. Ke2 c6 32. Kd3
+Qf5+ 33. Kd2 h5 34. Kd1 Qe5 35. Kc2 Qf6 36. Kb3 Qg5 37. Kc3 Qb5 38. Kc2 Ke7
+39. Kd2 Ra7 40. Kc3 g6 41. Kc2 Qf1 42. Kc3 Qb1 43. Kc4 Kf8 44. Kc5 d5 45. Kd4
+Ne7 46. Ke3 Qa2 47. Kf4 Ba8 48. Kf3 Qe2+ 49. Kf4 Qc4+ 50. Kg5 f5 51. Kf6 Qe2
+52. Kg5 Rf7 53. Kf4 Qc4+ 54. Kg5 Qc5 55. Kf4 Qc3 56. Kg5 Qd3
+57. Kh4 { makes an illegal move: c3d3} 1/2-1/2
+
