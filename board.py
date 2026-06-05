@@ -41,9 +41,15 @@ from chessdk import (
     on_board,
     rank_of,
     sq,
+    parse_square
 )
 from chessdk.base import BaseBoard
 
+
+def move(s: str) -> Move:
+    from_sq = s[0:2]
+    to_sq = s[2:4]
+    return Move(parse_square(from_sq), parse_square(to_sq))
 
 class Board(BaseBoard):
     """A chess board with move generation. You implement the methods below."""
