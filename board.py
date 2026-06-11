@@ -470,32 +470,32 @@ class Board(BaseBoard):
             return False
 
         def pawn_attacking_square(self, square, color, piece_type):
-            if self.piece_at(square - 7) is not None and on_board(file_of(square - 7), rank_of(square - 7)):
+            if self.piece_at(sq(file_of(square) + 1, rank_of(square) - 1)) is not None and on_board(file_of(square) + 1, rank_of(square) - 1):
                 if (
-                    self.piece_at(square - 7).color == WHITE
-                    and self.piece_at(square - 7).color == color
-                    and self.piece_at(square - 7).kind == piece_type
+                    self.piece_at(sq(file_of(square) + 1, rank_of(square) - 1)).color == WHITE
+                    and self.piece_at(sq(file_of(square) + 1, rank_of(square) - 1)).color == color
+                    and self.piece_at(sq(file_of(square) + 1, rank_of(square) - 1)).kind == piece_type
                 ):
                     return True
-            if self.piece_at(square - 9) is not None and on_board(file_of(square - 9), rank_of(square - 9)):
+            if self.piece_at(sq(file_of(square) - 1, rank_of(square) - 1)) is not None and on_board(file_of(square) - 1, rank_of(square) - 1):
                 if (
-                    self.piece_at(square - 9).color == WHITE
-                    and self.piece_at(square - 9).color == color
-                    and self.piece_at(square - 9).kind == piece_type
+                    self.piece_at(sq(file_of(square) - 1, rank_of(square) - 1)).color == WHITE
+                    and self.piece_at(sq(file_of(square) - 1, rank_of(square) - 1)).color == color
+                    and self.piece_at(sq(file_of(square) - 1, rank_of(square) - 1)).kind == piece_type
                 ):
                     return True
-            if self.piece_at(square + 7) is not None and on_board(file_of(square + 7), rank_of(square + 7)):
+            if self.piece_at(sq(file_of(square) + 1, (rank_of(square) + 1))) is not None and on_board(file_of(square) + 1, rank_of(square) + 1):
                 if (
-                    self.piece_at(square + 7).color == BLACK
-                    and self.piece_at(square + 7).color == color
-                    and self.piece_at(square + 7).kind == piece_type
+                    self.piece_at(sq(file_of(square) + 1, (rank_of(square) + 1))).color == BLACK
+                    and self.piece_at(sq(file_of(square) + 1, (rank_of(square) + 1))).color == color
+                    and self.piece_at(sq(file_of(square) + 1, (rank_of(square) + 1))).kind == piece_type
                 ):
                     return True
-            if self.piece_at(square + 9) is not None and on_board(file_of(square + 9), rank_of(square + 9)):
+            if self.piece_at(sq(file_of(square) - 1, rank_of(square) + 1)) is not None and on_board(file_of(square) - 1, rank_of(square) + 1):
                 if (
-                    self.piece_at(square + 9).color == BLACK
-                    and self.piece_at(square + 9).color == color
-                    and self.piece_at(square + 9).kind == piece_type
+                    self.piece_at(sq(file_of(square) - 1, rank_of(square) + 1)).color == BLACK
+                    and self.piece_at(sq(file_of(square) - 1, rank_of(square) + 1)).color == color
+                    and self.piece_at(sq(file_of(square) - 1, rank_of(square) + 1)).kind == piece_type
                 ):
                     return True
             return False

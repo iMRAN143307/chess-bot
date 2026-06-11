@@ -16,7 +16,9 @@ from __future__ import annotations
 
 from board import Board
 
-
+my_board = Board()
 def evaluate(board: Board) -> int:
     """Return a centipawn score for the position from White's point of view."""
-    raise NotImplementedError("evaluate: implement in Phase 4 (Stage 13)")
+    for piece in my_board.pieces:
+        if piece != None:
+            if piece.color == Color.BLACK
