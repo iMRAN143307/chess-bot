@@ -36,29 +36,87 @@ from chessdk import (
     Piece,
     file_of,
     on_board,
+    parse_square,
+    pst_square,
     rank_of,
     sq,
-    parse_square
 )
 
 from board import Board
 
+
 def evaluate(board: Board) -> int:
     """Return a centipawn score for the position from White's point of view."""
     score = 0
+    w_bishops = 0
+    b_bishops = 0
 
-    if board.legal_moves() == [] and board.side_to_move == Color.BLACK and board.is_in_check(Color.BLACK):
+    if (
+        board.legal_moves() == []
+        and board.side_to_move == Color.BLACK
+        and board.is_in_check(Color.BLACK)
+    ):
         score += 1_000_000
         return score
-    if board.legal_moves() == [] and board.side_to_move == Color.WHITE and board.is_in_check(Color.WHITE):
+    if (
+        board.legal_moves() == []
+        and board.side_to_move == Color.WHITE
+        and board.is_in_check(Color.WHITE)
+    ):
         score -= 1_000_000
         return score
+    if (
+        board.legal_moves() == []
+        and not board.is_in_check(Color.WHITE)
+        and not board.is_in_check(Color.BLACK)
+    ):
+        score = 0
+        return score
 
-    for piece in board.pieces:
-        if piece != None:
+    for i, piece in enumerate(board.pieces):
+        if piece is not None:
             if piece.color == Color.BLACK:
-                pass
+                if piece.kind == Kind.PAWN:
+                    score -= 100
+                    score -= pst_square(Kind.PAWN, Color.BLACK, i)
+                elif piece.kind == Kind.BISHOP:
+                    score -= 325
+                    b_bishops += 1
+                    score -= pst_square(Kind.BISHOP, Color.BLACK, i)
+                elif piece.kind == Kind.KNIGHT:
+                    score -= 325
+                    score -= pst_square(Kind.KNIGHT, Color.BLACK, i)
+                elif piece.kind == Kind.ROOK:
+                    score -= 500
+                    score -= pst_square(Kind.ROOK, Color.BLACK, i)
+                elif piece.kind == Kind.QUEEN:
+                    score -= 975
+                    score -= pst_square(Kind.QUEEN, Color.BLACK, i)
+                elif piece.kind == Kind.KING:
+                    score -= pst_square(Kind.KING, Color.BLACK, i)
             if piece.color == Color.WHITE:
-                pass
+                if piece.kind == Kind.PAWN:
+                    score += 100
+                    score += pst_square(Kind.PAWN, Color.WHITE, i)
+                elif piece.kind == Kind.BISHOP:
+                    score += 325
+                    w_bishops += 1
+                    score += pst_square(Kind.BISHOP, Color.WHITE, i)
+                elif piece.kind == Kind.KNIGHT:
+                    score += 325
+                    score += pst_square(Kind.KNIGHT, Color.WHITE, i)
+                elif piece.kind == Kind.ROOK:
+                    score += 500
+                    score += pst_square(Kind.ROOK, Color.WHITE, i)
+                elif piece.kind == Kind.QUEEN:
+                    score += 975
+                    score += pst_square(Kind.QUEEN, Color.WHITE, i)
+                elif piece.kind == Kind.KING:
+                    score += pst_square(Kind.KING, Color.WHITE, i)
+
+    if b_bishops > 1:
+        score -= 50
+    if w_bishops > 1:
+        score += 50
 
     return score
