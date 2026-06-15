@@ -118,5 +118,8 @@ def evaluate(board: Board) -> int:
         score -= 50
     if w_bishops > 1:
         score += 50
-
+    if board.side_to_move == Color.WHITE:
+        score += len(board.legal_moves()) * 2
+    else:
+        score -= len(board.legal_moves()) * 2
     return score
