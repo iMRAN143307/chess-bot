@@ -12,9 +12,8 @@ offset constants (`KNIGHT_OFFSETS`, `BISHOP_DIRECTIONS`, etc.).
 
 from __future__ import annotations
 
-import copy
-
 # WE ARE IMPORTING FROM THE FUTURE!!!
+
 from typing import Iterator
 
 from chessdk import (
@@ -44,12 +43,6 @@ from chessdk import (
     parse_square
 )
 from chessdk.base import BaseBoard
-
-
-def move(s: str) -> Move:
-    from_sq = s[0:2]
-    to_sq = s[2:4]
-    return Move(parse_square(from_sq), parse_square(to_sq))
 
 class Board(BaseBoard):
     """A chess board with move generation. You implement the methods below."""
@@ -293,18 +286,18 @@ class Board(BaseBoard):
             move.from_sq == move.to_sq + 2 or move.from_sq == move.to_sq - 2
         ):
             if move.to_sq == 2:
-                self.pieces[3] = copy.deepcopy(self.pieces[0])
+                self.pieces[3] = self.pieces[0]
                 self.pieces[0] = None
             elif move.to_sq == 6:
-                self.pieces[5] = copy.deepcopy(self.pieces[7])
+                self.pieces[5] = self.pieces[7]
                 self.pieces[7] = None
             elif move.to_sq == 58:
-                self.pieces[59] = copy.deepcopy(self.pieces[56])
+                self.pieces[59] = self.pieces[56]
                 self.pieces[56] = None
             elif move.to_sq == 62:
-                self.pieces[61] = copy.deepcopy(self.pieces[63])
+                self.pieces[61] = self.pieces[63]
                 self.pieces[63] = None
-        self.pieces[move.to_sq] = copy.deepcopy(self.pieces[move.from_sq])
+        self.pieces[move.to_sq] = self.pieces[move.from_sq]
         self.pieces[move.from_sq] = None
         if self.state.side_to_move == Color.BLACK:
             self.state.fullmove_number += 1
@@ -400,18 +393,18 @@ class Board(BaseBoard):
             mr.move.from_sq == mr.move.to_sq + 2 or mr.move.from_sq == mr.move.to_sq - 2
         ):
             if mr.move.to_sq == 2:
-                self.pieces[0] = copy.deepcopy(self.pieces[3])
+                self.pieces[0] = self.pieces[3]
                 self.pieces[3] = None
             elif mr.move.to_sq == 6:
-                self.pieces[7] = copy.deepcopy(self.pieces[5])
+                self.pieces[7] = self.pieces[5]
                 self.pieces[5] = None
             elif mr.move.to_sq == 58:
-                self.pieces[56] = copy.deepcopy(self.pieces[59])
+                self.pieces[56] = self.pieces[59]
                 self.pieces[59] = None
             elif mr.move.to_sq == 62:
-                self.pieces[63] = copy.deepcopy(self.pieces[61])
+                self.pieces[63] = self.pieces[61]
                 self.pieces[61] = None
-        self.pieces[mr.move.from_sq] = copy.deepcopy(self.pieces[mr.move.to_sq])
+        self.pieces[mr.move.from_sq] = self.pieces[mr.move.to_sq]
         self.pieces[mr.captured_square] = mr.captured
         self.state.halfmove_clock = mr.prev_halfmove
         if self.state.side_to_move == Color.WHITE:
@@ -529,21 +522,17 @@ class Board(BaseBoard):
 
     def castling_moves(self, color: Color | None = None):
         moves = []
-        CastlingRights.white_kingside = self.state.castling.white_kingside
-        CastlingRights.white_queenside = self.state.castling.white_queenside
-        CastlingRights.black_kingside = self.state.castling.black_kingside
-        CastlingRights.black_queenside = self.state.castling.black_queenside
         if color is None:
             color = self.side_to_move
         if color == WHITE:
-            if CastlingRights.white_kingside:
+            if self.state.castling.white_kingside:
                 if self.piece_at(5) is None and self.piece_at(6) is None:
                     if not self.is_in_check():
                         if not self.is_attacked(
                             5, color.other
                         ) and not self.is_attacked(6, color.other):
                             moves.append(Move(4, 6))
-            if CastlingRights.white_queenside:
+            if self.state.castling.white_queenside:
                 if (
                     self.piece_at(2) is None
                     and self.piece_at(3) is None
@@ -555,14 +544,14 @@ class Board(BaseBoard):
                         ) and not self.is_attacked(3, color.other):
                             moves.append(Move(4, 2))
         elif color == BLACK:
-            if CastlingRights.black_kingside:
+            if self.state.castling.black_kingside:
                 if self.piece_at(61) is None and self.piece_at(62) is None:
                     if not self.is_in_check():
                         if not self.is_attacked(
                             61, color.other
                         ) and not self.is_attacked(62, color.other):
                             moves.append(Move(60, 62))
-            if CastlingRights.black_queenside:
+            if self.state.castling.black_queenside:
                 if (
                     self.piece_at(59) is None
                     and self.piece_at(58) is None
