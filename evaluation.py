@@ -50,23 +50,30 @@ def evaluate(board: Board) -> int:
     score = 0
     w_bishops = 0
     b_bishops = 0
+    legal = board.legal_moves()
+
+    def other_side_moves(changing_board):
+        changing_board.state.side_to_move = changing_board.state.side_to_move.other
+        moves = changing_board.legal_moves()
+        changing_board.state.side_to_move = changing_board.state.side_to_move.other
+        return moves
 
     if (
-        board.legal_moves() == []
+        legal == []
         and board.side_to_move == Color.BLACK
         and board.is_in_check(Color.BLACK)
     ):
         score += 1_000_000
         return score
     if (
-        board.legal_moves() == []
+        legal == []
         and board.side_to_move == Color.WHITE
         and board.is_in_check(Color.WHITE)
     ):
         score -= 1_000_000
         return score
     if (
-        board.legal_moves() == []
+        legal == []
         and not board.is_in_check(Color.WHITE)
         and not board.is_in_check(Color.BLACK)
     ):
@@ -118,8 +125,9 @@ def evaluate(board: Board) -> int:
         score -= 50
     if w_bishops > 1:
         score += 50
-    if board.side_to_move == Color.WHITE:
-        score += len(board.legal_moves()) * 2
+    opposite_moves = other_side_moves(board)
+    if board.state.side_to_move == Color.WHITE:
+        score += (len(legal) - len(opposite_moves)) * 2
     else:
-        score -= len(board.legal_moves()) * 2
+        score -= (len(legal) - len(opposite_moves)) * 2
     return score
