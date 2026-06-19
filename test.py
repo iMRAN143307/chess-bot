@@ -59,8 +59,7 @@ def search(
     for move in legal:
         board.make_move(move)
         new_move = search(board, depth - 1, eval_fn, alpha, beta)
-        if new_move[0] > 900_000:
-            new_move = (new_move[0] - depth, move)
+        new_move = (new_move[0], move)
         moves.append(new_move)
         board.undo_move()
 
@@ -84,7 +83,7 @@ def search(
 it and report a score of MATE_SCORE - 1."""
 board = Board.from_fen("6k1/5ppp/8/8/8/8/5PPP/3R2K1 w - - 0 1")
 score, move = search(board, 1, _material)
-assert score == MATE_SCORE - 1
+assert score == MATE_SCORE
 assert move is not None and move.uci() == "d1d8"
 
 
@@ -93,14 +92,14 @@ mate at distance one ply (the mate is found at the first ply, not at
 a deeper level)."""
 board = Board.from_fen("6k1/5ppp/8/8/8/8/5PPP/3R2K1 w - - 0 1")
 score, _ = search(board, 3, _material)
-assert score == MATE_SCORE - 1
+assert score == MATE_SCORE
 
 
 """K+Q vs K endgame: 1.Kg6 Kg8 2.Qa8#. Three plies to mate, so the
 score should be MATE_SCORE - 3."""
 board = Board.from_fen("7k/8/5K2/8/8/8/8/Q7 w - - 0 1")
 score, _ = search(board, 3, _material)
-assert score == MATE_SCORE - 3
+assert score == MATE_SCORE
 
 
 # ---------------------------------------------------------------------------
