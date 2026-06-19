@@ -18,7 +18,7 @@ from __future__ import annotations
 from typing import Callable
 
 from board import Board
-from chessdk import MATE_SCORE, Move
+from chessdk import Color, Move, MATE_SCORE
 
 
 def search(
@@ -30,8 +30,35 @@ def search(
 ) -> tuple[int, Move | None]:
     """Return ``(best_score_for_position, best_move)`` after searching to
     the given depth."""
-    raise NotImplementedError("search: implement in Phase 5 (Stage 17)")
 
+    legal = board.legal_moves()
+    moves = []
+
+    if (
+        legal == []
+        and board.side_to_move == Color.BLACK
+        and board.is_in_check(Color.BLACK)
+    ):
+        return (1_000_000 + depth, None)
+    if (
+        legal == []
+        and board.side_to_move == Color.WHITE
+        and board.is_in_check(Color.WHITE)
+    ):
+        return (-1_000_000 - depth, None)
+    if (
+        legal == []
+        and not board.is_in_check(Color.WHITE)
+        and not board.is_in_check(Color.BLACK)
+    ):
+        return (0, None)
+    if depth == 0:
+        return (eval_fn(board), None)
+    else:
+        for move in legal:
+            board.make_move(move)
+            moves.append(search(board, depth - 1, eval_fn, alpha, beta))
+            board.undo_move
 
 def order_moves(board: Board, moves: list[Move]) -> list[Move]:
     """Return ``moves`` sorted to put likely-strong moves first."""
