@@ -17,8 +17,9 @@ from __future__ import annotations
 
 from typing import Callable
 
+from chessdk import MATE_SCORE, Color, Move
+
 from board import Board
-from chessdk import Color, Move, MATE_SCORE
 
 
 def search(
@@ -54,11 +55,15 @@ def search(
         return (0, None)
     if depth == 0:
         return (eval_fn(board), None)
+    for move in legal:
+        board.make_move(move)
+        moves.append(search(board, depth - 1, eval_fn, alpha, beta))
+        board.undo_move()
+    if board.side_to_move == Color.WHITE:
+        return moves[moves.index(max(moves[0]))]
     else:
-        for move in legal:
-            board.make_move(move)
-            moves.append(search(board, depth - 1, eval_fn, alpha, beta))
-            board.undo_move
+        return moves[moves.index(min(moves[0]))]
+
 
 def order_moves(board: Board, moves: list[Move]) -> list[Move]:
     """Return ``moves`` sorted to put likely-strong moves first."""
