@@ -75,7 +75,7 @@ def test_mate_in_one_at_depth_one_scores_mate_minus_one():
     it and report a score of MATE_SCORE - 1."""
     board = Board.from_fen("6k1/5ppp/8/8/8/8/5PPP/3R2K1 w - - 0 1")
     score, move = search(board, 1, _material)
-    assert score == MATE_SCORE
+    assert score == MATE_SCORE - 1
     assert move is not None and move.uci() == "d1d8"
 
 
@@ -85,7 +85,7 @@ def test_mate_in_one_at_depth_three_still_scores_mate_minus_one():
     a deeper level)."""
     board = Board.from_fen("6k1/5ppp/8/8/8/8/5PPP/3R2K1 w - - 0 1")
     score, _ = search(board, 3, _material)
-    assert score == MATE_SCORE
+    assert score == MATE_SCORE - 1
 
 
 def test_mate_in_two_at_depth_three_scores_mate_minus_three():
@@ -93,7 +93,7 @@ def test_mate_in_two_at_depth_three_scores_mate_minus_three():
     score should be MATE_SCORE - 3."""
     board = Board.from_fen("7k/8/5K2/8/8/8/8/Q7 w - - 0 1")
     score, _ = search(board, 3, _material)
-    assert score == MATE_SCORE
+    assert score == MATE_SCORE - 3
 
 
 # ---------------------------------------------------------------------------

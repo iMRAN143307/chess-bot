@@ -58,7 +58,12 @@ def search(
     for move in legal:
         board.make_move(move)
         new_move = search(board, depth - 1, eval_fn, alpha, beta)
-        new_move = (new_move[0], move)
+        if new_move[0] > 900_000:
+            new_move = (new_move[0] - 1, move)
+        elif new_move[0] < -900_000:
+            new_move = (new_move[0] + 1, move)
+        else:
+            new_move = (new_move[0], move)
         moves.append(new_move)
         board.undo_move()
 
