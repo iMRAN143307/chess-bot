@@ -14,33 +14,7 @@ The kit ships canonical starting values for piece values and PSTs in
 
 from __future__ import annotations
 
-from chessdk import (
-    BISHOP,
-    BISHOP_DIRECTIONS,
-    BLACK,
-    KING,
-    KING_OFFSETS,
-    KNIGHT,
-    KNIGHT_OFFSETS,
-    PAWN,
-    QUEEN,
-    QUEEN_DIRECTIONS,
-    ROOK,
-    ROOK_DIRECTIONS,
-    WHITE,
-    CastlingRights,
-    Color,
-    Kind,
-    Move,
-    MoveRecord,
-    Piece,
-    file_of,
-    on_board,
-    parse_square,
-    pst_square,
-    rank_of,
-    sq,
-)
+from chessdk import Color, Kind, pst_square
 
 from board import Board
 
