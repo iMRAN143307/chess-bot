@@ -40,13 +40,13 @@ def search(
         and board.side_to_move == Color.BLACK
         and board.is_in_check(Color.BLACK)
     ):
-        return (1_000_000 + depth, None)
+        return (1_000_000, None)
     if (
         legal == []
         and board.side_to_move == Color.WHITE
         and board.is_in_check(Color.WHITE)
     ):
-        return (-1_000_000 - depth, None)
+        return (-1_000_000, None)
     if (
         legal == []
         and not board.is_in_check(Color.WHITE)
@@ -57,12 +57,19 @@ def search(
         return (eval_fn(board), None)
     for move in legal:
         board.make_move(move)
-        moves.append(search(board, depth - 1, eval_fn, alpha, beta))
+        new_move = search(board, depth - 1, eval_fn, alpha, beta)
+        new_move = (new_move[0], move)
+        moves.append(new_move)
         board.undo_move()
+
     if board.side_to_move == Color.WHITE:
-        return moves[moves.index(max(moves[0]))]
+        return moves[
+            [move[0] for move in moves].index(max([move[0] for move in moves]))
+        ]
     else:
-        return moves[moves.index(min(moves[0]))]
+        return moves[
+            [move[0] for move in moves].index(min([move[0] for move in moves]))
+        ]
 
 
 def order_moves(board: Board, moves: list[Move]) -> list[Move]:

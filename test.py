@@ -63,7 +63,6 @@ def search(
         moves.append(new_move)
         board.undo_move()
 
-    print(moves[[move[0] for move in moves].index(max([move[0] for move in moves]))])
     if board.side_to_move == Color.WHITE:
         return moves[
             [move[0] for move in moves].index(max([move[0] for move in moves]))
