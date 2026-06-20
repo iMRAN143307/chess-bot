@@ -6,13 +6,17 @@ come back to this in Week 3 when we integrate UCI and submit to the tournament.
 
 from __future__ import annotations
 
-from chessdk import (
-    Move,
-    Color
-)
+from chessdk import Move
 
 from board import Board
 from evaluation import evaluate
+from search import search
+
+
+class IndexFinger(Exception):
+    """Raised when an objection occurs"""
+
+    pass
 
 
 def choose_move(board: Board, time_left_ms: int) -> Move:
@@ -22,12 +26,9 @@ def choose_move(board: Board, time_left_ms: int) -> Move:
     For Week 1 this function is unused; later weeks replace it with real logic.
     """
 
-    moves = board.legal_moves()
-    for i, m in enumerate(board.legal_moves()):
-        board.make_move(m)
-        moves[i] = evaluate(board)
-        board.undo_move()
-    if board.side_to_move == Color.WHITE:
-        return board.legal_moves()[moves.index(max(moves))]
+    best_move = search(board, 3, evaluate)[1]
+
+    if best_move is not None:
+        return best_move
     else:
-        return board.legal_moves()[moves.index(min(moves))]
+        raise IndexFinger("Objection!")  # Peak Ace Attorney reference
