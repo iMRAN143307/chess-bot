@@ -17,17 +17,18 @@ from __future__ import annotations
 
 from typing import Callable
 
-from chessdk import MATE_SCORE, Color, Move
+from chessdk import Color, Move
 
 from board import Board
+from evaluation import evaluate
 
 
 def search(
     board: Board,
     depth: int,
     eval_fn: Callable[[Board], int],
-    alpha: int = -MATE_SCORE,
-    beta: int = MATE_SCORE,
+    alpha: int = -1_000_000,
+    beta: int = 1_000_000,
 ) -> tuple[int, Move | None]:
     """Return ``(best_score_for_position, best_move)`` after searching to
     the given depth."""
@@ -54,18 +55,42 @@ def search(
     ):
         return (0, None)
     if depth == 0:
-        return (eval_fn(board), None)
+        return (evaluate(board), None)
     for move in legal:
         board.make_move(move)
-        new_move = search(board, depth - 1, eval_fn, alpha, beta)
-        if new_move[0] > 900_000:
-            new_move = (new_move[0] - 1, move)
-        elif new_move[0] < -900_000:
-            new_move = (new_move[0] + 1, move)
+        if board.side_to_move == Color.BLACK:
+            if evaluate(board) >= alpha:
+                new_move = search(board, depth - 1, eval_fn, alpha, beta)
+                alpha = max(alpha, new_move[0])
+                if new_move[0] > 900_000:
+                    new_move = (new_move[0] - 1, move)
+                elif new_move[0] < -900_000:
+                    new_move = (new_move[0] + 1, move)
+                else:
+                    new_move = (new_move[0], move)
+                moves.append(new_move)
+            else:
+                pass
         else:
-            new_move = (new_move[0], move)
-        moves.append(new_move)
+            if evaluate(board) <= beta:
+                new_move = search(board, depth - 1, eval_fn, alpha, beta)
+                beta = min(beta, new_move[0])
+                if new_move[0] > 900_000:
+                    new_move = (new_move[0] - 1, move)
+                elif new_move[0] < -900_000:
+                    new_move = (new_move[0] + 1, move)
+                else:
+                    new_move = (new_move[0], move)
+                moves.append(new_move)
+            else:
+                pass
         board.undo_move()
+
+    if moves == []:
+        if board.side_to_move == Color.BLACK:
+            return (1_000_000, None)
+        else:
+            return (-1_000_000, None)
 
     if board.side_to_move == Color.WHITE:
         return moves[
