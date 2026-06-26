@@ -22,7 +22,6 @@ from chessdk import Color, Move
 from board import Board
 from evaluation import evaluate
 
-
 def search(
     board: Board,
     depth: int,
@@ -35,6 +34,10 @@ def search(
 
     legal = board.legal_moves()
     moves = []
+    if board.side_to_move == Color.BLACK:
+        best_move = (1_000_000, None)
+    else:
+        best_move = (-1_000_000, None)
 
     if (
         legal == []
@@ -55,51 +58,36 @@ def search(
     ):
         return (0, None)
     if depth == 0:
-        return (evaluate(board), None)
+        return (eval_fn(board), None)
     for move in legal:
         board.make_move(move)
         if board.side_to_move == Color.BLACK:
-            if evaluate(board) >= alpha:
-                new_move = search(board, depth - 1, eval_fn, alpha, beta)
-                alpha = max(alpha, new_move[0])
-                if new_move[0] > 900_000:
-                    new_move = (new_move[0] - 1, move)
-                elif new_move[0] < -900_000:
-                    new_move = (new_move[0] + 1, move)
-                else:
-                    new_move = (new_move[0], move)
-                moves.append(new_move)
+            new_move = search(board, depth - 1, eval_fn, alpha, beta)
+            alpha = max(alpha, new_move[0])
+            if new_move[0] > 900_000:
+                new_move = (new_move[0] - 1, move)
+            elif new_move[0] < -900_000:
+                new_move = (new_move[0] + 1, move)
             else:
-                pass
+                new_move = (new_move[0], move)
+            best_move = [best_move, new_move]
+            best_move = best_move[[move[0] for move in best_move].index(max([move[0] for move in best_move]))]
         else:
-            if evaluate(board) <= beta:
-                new_move = search(board, depth - 1, eval_fn, alpha, beta)
-                beta = min(beta, new_move[0])
-                if new_move[0] > 900_000:
-                    new_move = (new_move[0] - 1, move)
-                elif new_move[0] < -900_000:
-                    new_move = (new_move[0] + 1, move)
-                else:
-                    new_move = (new_move[0], move)
-                moves.append(new_move)
+            new_move = search(board, depth - 1, eval_fn, alpha, beta)
+            beta = min(beta, new_move[0])
+            if new_move[0] > 900_000:
+                new_move = (new_move[0] - 1, move)
+            elif new_move[0] < -900_000:
+                new_move = (new_move[0] + 1, move)
             else:
-                pass
+                new_move = (new_move[0], move)
+            best_move = [best_move, new_move]
+            best_move = best_move[[move[0] for move in best_move].index(min([move[0] for move in best_move]))]
         board.undo_move()
+        if alpha >= beta:
+            return best_move
 
-    if moves == []:
-        if board.side_to_move == Color.BLACK:
-            return (1_000_000, None)
-        else:
-            return (-1_000_000, None)
-
-    if board.side_to_move == Color.WHITE:
-        return moves[
-            [move[0] for move in moves].index(max([move[0] for move in moves]))
-        ]
-    else:
-        return moves[
-            [move[0] for move in moves].index(min([move[0] for move in moves]))
-        ]
+    return best_move
 
 
 def order_moves(board: Board, moves: list[Move]) -> list[Move]:

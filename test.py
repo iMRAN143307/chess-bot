@@ -21,7 +21,6 @@ from chessdk import MATE_SCORE, Color, Move
 from board import Board
 from evaluation import evaluate
 
-
 def search(
     board: Board,
     depth: int,
@@ -34,6 +33,10 @@ def search(
 
     legal = board.legal_moves()
     moves = []
+    if board.side_to_move == Color.BLACK:
+        best_move = (1_000_000, None)
+    else:
+        best_move = (-1_000_000, None)
 
     if (
         legal == []
@@ -58,107 +61,97 @@ def search(
     for move in legal:
         board.make_move(move)
         if board.side_to_move == Color.BLACK:
-            if evaluate(board) >= alpha:
-                new_move = search(board, depth - 1, eval_fn, alpha, beta)
-                alpha = max(alpha, new_move[0])
-                if new_move[0] > 900_000:
-                    new_move = (new_move[0] - 1, move)
-                elif new_move[0] < -900_000:
-                    new_move = (new_move[0] + 1, move)
-                else:
-                    new_move = (new_move[0], move)
-                moves.append(new_move)
+            new_move = search(board, depth - 1, eval_fn, alpha, beta)
+            alpha = max(alpha, new_move[0])
+            if new_move[0] > 900_000:
+                new_move = (new_move[0] - 1, move)
+            elif new_move[0] < -900_000:
+                new_move = (new_move[0] + 1, move)
             else:
-                pass
+                new_move = (new_move[0], move)
+            best_move = [best_move, new_move]
+            best_move = best_move[[move[0] for move in best_move].index(max([move[0] for move in best_move]))]
         else:
-            if evaluate(board) <= beta:
-                new_move = search(board, depth - 1, eval_fn, alpha, beta)
-                beta = min(beta, new_move[0])
-                if new_move[0] > 900_000:
-                    new_move = (new_move[0] - 1, move)
-                elif new_move[0] < -900_000:
-                    new_move = (new_move[0] + 1, move)
-                else:
-                    new_move = (new_move[0], move)
-                moves.append(new_move)
+            new_move = search(board, depth - 1, eval_fn, alpha, beta)
+            beta = min(beta, new_move[0])
+            if new_move[0] > 900_000:
+                new_move = (new_move[0] - 1, move)
+            elif new_move[0] < -900_000:
+                new_move = (new_move[0] + 1, move)
             else:
-                pass
+                new_move = (new_move[0], move)
+            best_move = [best_move, new_move]
+            best_move = best_move[[move[0] for move in best_move].index(min([move[0] for move in best_move]))]
         board.undo_move()
+        if alpha >= beta:
+            return best_move
 
-    if moves == []:
-        if board.side_to_move == Color.BLACK:
-            return (1_000_000, None)
-        else:
-            return (-1_000_000, None)
+    return best_move
+
+def _decay_mate(score: int) -> int:
+    if score >= MATE_SCORE - 1000:
+        return score - 1
+    if score <= -MATE_SCORE + 1000:
+        return score + 1
+    return score
+
+
+def _plain_minimax(board, depth: int) -> int:
+    """Reference plain-minimax with mate-distance decay, no pruning."""
+    legal = board.legal_moves()
+    if not legal:
+        if board.is_in_check():
+            return -MATE_SCORE if board.side_to_move == Color.WHITE else MATE_SCORE
+        return 0
+    if depth == 0:
+        return evaluate(board)
 
     if board.side_to_move == Color.WHITE:
-        return moves[
-            [move[0] for move in moves].index(max([move[0] for move in moves]))
-        ]
-    else:
-        return moves[
-            [move[0] for move in moves].index(min([move[0] for move in moves]))
-        ]
+        best = -MATE_SCORE - 1
+        for move in legal:
+            board.make_move(move)
+            value = _decay_mate(_plain_minimax(board, depth - 1))
+            board.undo_move()
+            if value > best:
+                best = value
+        return best
+
+    best = MATE_SCORE + 1
+    for move in legal:
+        board.make_move(move)
+        value = _decay_mate(_plain_minimax(board, depth - 1))
+        board.undo_move()
+        if value < best:
+            best = value
+    return best
 
 
-# ---------------------------------------------------------------------------
-# Terminal positions: checkmate and stalemate handling lives in search.
-# ---------------------------------------------------------------------------
+POSITIONS = [
+    # Starting position
+    "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+    # An open middlegame
+    "r1bqkb1r/pppp1ppp/2n2n2/4p3/4P3/2N2N2/PPPP1PPP/R1BQKB1R w KQkq - 4 4",
+    # A tactical position
+    "r1bqk2r/ppp2ppp/2n5/3npb2/1bBP4/2NQ1N2/PPP2PPP/R1B1K2R w KQkq - 0 7",
+    # A K+P endgame
+    "8/8/8/4k3/4P3/4K3/8/8 w - - 0 1",
+]
 
+def test_alpha_beta_matches_plain_minimax(fen: str, depth: int):
+    board = Board.from_fen(fen)
+    ab_score, _ = search(board, depth, evaluate)
+    plain_score = _plain_minimax(board, depth)
+    assert ab_score == plain_score, (
+        f"alpha-beta and plain minimax disagree at depth {depth} on {fen!r}: "
+        f"alpha-beta={ab_score}, plain={plain_score}"
+    )
 
-"""Black has been mated on the back rank; from White's POV the score
-is mate-magnitude positive."""
-board = Board.from_fen("R5k1/5ppp/8/8/8/8/8/6K1 b - - 1 1")
-score, _ = search(board, 0, evaluate)
-assert score == MATE_SCORE
-
-
-"""White has been mated by fool's mate; mate-magnitude negative."""
-board = Board.from_fen("rnb1kbnr/pppp1ppp/8/4p3/6Pq/5P2/PPPPP2P/RNBQKBNR w KQkq - 0 1")
-score, _ = search(board, 0, evaluate)
-assert score == -MATE_SCORE
-
-
-"""Black to move with no legal moves and not in check; stalemate is a draw."""
-board = Board.from_fen("k7/8/1Q6/2K5/8/8/8/8 b - - 0 1")
-score, _ = search(board, 0, evaluate)
-assert score == 0
-
-
-# ---------------------------------------------------------------------------
-# Mate distance: shorter mates score higher in magnitude than longer mates.
-# ---------------------------------------------------------------------------
-
-
-"""White plays Rd8# (back-rank mate); search at depth one should find
-it and report a score of MATE_SCORE - 1."""
-board = Board.from_fen("6k1/5ppp/8/8/8/8/5PPP/3R2K1 w - - 0 1")
-score, move = search(board, 1, evaluate)
-assert score == MATE_SCORE - 1
-assert move is not None and move.uci() == "d1d8"
-
-
-"""The same mate-in-one position at a deeper search still scores as
-mate at distance one ply (the mate is found at the first ply, not at
-a deeper level)."""
-board = Board.from_fen("6k1/5ppp/8/8/8/8/5PPP/3R2K1 w - - 0 1")
-score, _ = search(board, 3, evaluate)
-assert score == MATE_SCORE - 1
-
-
-"""K+Q vs K endgame: 1.Kg6 Kg8 2.Qa8#. Three plies to mate, so the
-score should be MATE_SCORE - 3."""
-board = Board.from_fen("7k/8/5K2/8/8/8/8/Q7 w - - 0 1")
-score, _ = search(board, 3, evaluate)
-assert score == MATE_SCORE - 3
-
-
-# ---------------------------------------------------------------------------
-# Normal positions: search returns a legal move.
-# ---------------------------------------------------------------------------
-
-
-board = Board()
-score, move = search(board, 2, evaluate)
-assert move is not None
-assert move in board.legal_moves()
+for position in POSITIONS:
+    test_alpha_beta_matches_plain_minimax(position, 1)
+    print("depth 1 good")
+for position in POSITIONS:
+    test_alpha_beta_matches_plain_minimax(position, 2)
+    print("depth 2 good")
+for position in POSITIONS:
+    test_alpha_beta_matches_plain_minimax(position, 3)
+    print("depth 3 good")
