@@ -18,9 +18,32 @@ from __future__ import annotations
 from typing import Callable
 
 from chessdk import Color, Move
+from chessdk.evaluation import PIECE_VALUE_KAUFMAN
 
 from board import Board
-from evaluation import evaluate
+
+
+def order_moves(board: Board, moves: list[Move]) -> list[Move]:
+    """Return ``moves`` sorted to put likely-strong moves first."""
+    if moves != []:
+        move_value_dict = dict()
+        for move_obj in moves:
+            move_value_dict[move_obj] = 0
+            to_piece = board.pieces[move_obj.to_sq]
+            from_piece = board.pieces[move_obj.from_sq]
+            if to_piece is not None and from_piece is not None:
+                move_value_dict[move_obj] += PIECE_VALUE_KAUFMAN[to_piece.kind]
+                move_value_dict[move_obj] -= PIECE_VALUE_KAUFMAN[from_piece.kind] / 100
+        sorted_move_value_dict = [
+            k
+            for k, v in sorted(
+                move_value_dict.items(), key=lambda item: item[1], reverse=True
+            )
+        ]
+        moves = sorted_move_value_dict
+
+    return moves
+
 
 def search(
     board: Board,
@@ -33,7 +56,6 @@ def search(
     the given depth."""
 
     legal = board.legal_moves()
-    moves = []
     if board.side_to_move == Color.BLACK:
         best_move = (1_000_000, None)
     else:
@@ -59,6 +81,7 @@ def search(
         return (0, None)
     if depth == 0:
         return (eval_fn(board), None)
+    legal = order_moves(board, legal)
     for move in legal:
         board.make_move(move)
         if board.side_to_move == Color.BLACK:
@@ -71,7 +94,11 @@ def search(
             else:
                 new_move = (new_move[0], move)
             best_move = [best_move, new_move]
-            best_move = best_move[[move[0] for move in best_move].index(max([move[0] for move in best_move]))]
+            best_move = best_move[
+                [move[0] for move in best_move].index(
+                    max([move[0] for move in best_move])
+                )
+            ]
         else:
             new_move = search(board, depth - 1, eval_fn, alpha, beta)
             beta = min(beta, new_move[0])
@@ -82,14 +109,13 @@ def search(
             else:
                 new_move = (new_move[0], move)
             best_move = [best_move, new_move]
-            best_move = best_move[[move[0] for move in best_move].index(min([move[0] for move in best_move]))]
+            best_move = best_move[
+                [move[0] for move in best_move].index(
+                    min([move[0] for move in best_move])
+                )
+            ]
         board.undo_move()
         if alpha >= beta:
             return best_move
 
     return best_move
-
-
-def order_moves(board: Board, moves: list[Move]) -> list[Move]:
-    """Return ``moves`` sorted to put likely-strong moves first."""
-    raise NotImplementedError("order_moves: implement in Phase 5 (Stage 19)")
