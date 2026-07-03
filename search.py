@@ -48,7 +48,7 @@ def order_moves(board: Board, moves: list[Move]) -> list[Move]:
 def search(
     board: Board,
     depth: int,
-    eval_fn: Callable[[Board], int],
+    eval_fn,
     alpha: int = -1_000_000,
     beta: int = 1_000_000,
 ) -> tuple[int, Move | None]:
@@ -80,7 +80,10 @@ def search(
     ):
         return (0, None)
     if depth == 0:
-        return (eval_fn(board), None)
+        try:
+            return (eval_fn(board, legal), None)
+        except TypeError:
+            return (eval_fn(board), None)
     legal = order_moves(board, legal)
     for move in legal:
         board.make_move(move)

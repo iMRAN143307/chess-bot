@@ -26,7 +26,7 @@ def choose_move(board: Board, time_left_ms: int) -> Move:
     For Week 1 this function is unused; later weeks replace it with real logic.
     """
 
-    best_move = search(board, 3, evaluate)[1]
+    best_move = search(board, 2, evaluate)[1]
 
     if best_move is not None:
         return best_move

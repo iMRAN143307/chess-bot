@@ -19,12 +19,13 @@ from chessdk import Color, Kind, pst_square
 from board import Board
 
 
-def evaluate(board: Board) -> int:
+def evaluate(board: Board, legal=None) -> int:
     """Return a centipawn score for the position from White's point of view."""
+    if legal is None:
+        legal = board.legal_moves()
     score = 0
     w_bishops = 0
     b_bishops = 0
-    legal = board.legal_moves()
 
     def other_side_moves(changing_board):
         changing_board.state.side_to_move = changing_board.state.side_to_move.other
