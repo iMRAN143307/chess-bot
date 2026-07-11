@@ -15,8 +15,6 @@ helper below, and Stage 20 instruments the whole thing.
 
 from __future__ import annotations
 
-from typing import Callable
-
 from chessdk import Color, Move
 from chessdk.evaluation import PIECE_VALUE_KAUFMAN
 
@@ -122,3 +120,11 @@ def search(
             return best_move
 
     return best_move
+
+def search_iterative(board, eval_fn, depth):
+    best_move = (0, None)
+    best_move = search(board, depth, eval_fn)
+    return best_move
+
+def quiesce():
+    pass

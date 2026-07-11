@@ -10,7 +10,7 @@ from chessdk import Move
 
 from board import Board
 from evaluation import evaluate
-from search import search
+from search import search_iterative
 
 
 class IndexFinger(Exception):
@@ -26,7 +26,7 @@ def choose_move(board: Board, time_left_ms: int) -> Move:
     For Week 1 this function is unused; later weeks replace it with real logic.
     """
 
-    best_move = search(board, 2, evaluate)[1]
+    best_move = search_iterative(board, evaluate, 2)[1]
 
     if best_move is not None:
         return best_move
