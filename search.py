@@ -20,6 +20,7 @@ from chessdk.evaluation import PIECE_VALUE_KAUFMAN
 
 from board import Board
 
+import time
 
 def order_moves(board: Board, moves: list[Move]) -> list[Move]:
     """Return ``moves`` sorted to put likely-strong moves first."""
@@ -49,6 +50,7 @@ def search(
     eval_fn,
     alpha: int = -1_000_000,
     beta: int = 1_000_000,
+    preset_best = (0, None)
 ) -> tuple[int, Move | None]:
     """Return ``(best_score_for_position, best_move)`` after searching to
     the given depth."""
@@ -83,6 +85,8 @@ def search(
         except TypeError:
             return (eval_fn(board), None)
     legal = order_moves(board, legal)
+    if preset_best[1] is not None:
+        legal.insert(0, preset_best[1])
     for move in legal:
         board.make_move(move)
         if board.side_to_move == Color.BLACK:
@@ -121,9 +125,18 @@ def search(
 
     return best_move
 
-def search_iterative(board, eval_fn, depth):
-    best_move = (0, None)
-    best_move = search(board, depth, eval_fn)
+def search_iterative(board, eval_fn, max_depth, time_budget_ms=None):
+    time_elapsed_ms = time.perf_counter() * 1000
+    best_move = search(board, 1, eval_fn)
+    for i in range(max_depth - 1):
+        if best_move[0] >= 900_000:
+            break
+        if best_move[0] <= -900_000:
+            break
+        if time_budget_ms is not None:
+            if time_elapsed_ms >= time_budget_ms:
+                break
+        best_move = search(board, i + 2, eval_fn, -1_000_000, 1_000_000, best_move)
     return best_move
 
 def quiesce():

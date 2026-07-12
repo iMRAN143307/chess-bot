@@ -26,7 +26,9 @@ def choose_move(board: Board, time_left_ms: int) -> Move:
     For Week 1 this function is unused; later weeks replace it with real logic.
     """
 
-    best_move = search_iterative(board, evaluate, 2)[1]
+    turn_time = max((time_left_ms / 30), 40) - 10 #Once ~80% of my time has elapsed, I will have ~30 more turns to close out the game
+
+    best_move = search_iterative(board, evaluate, 5, turn_time)[1]
 
     if best_move is not None:
         return best_move
