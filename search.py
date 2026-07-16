@@ -139,5 +139,52 @@ def search_iterative(board, eval_fn, max_depth, time_budget_ms=None):
         best_move = search(board, i + 2, eval_fn, -1_000_000, 1_000_000, best_move)
     return best_move
 
-def quiesce():
-    pass
+def quiesce(board, alpha, beta, eval_fn):
+    score = eval_fn(board)
+    legal = board.legal_moves()
+
+    if (
+        legal == []
+        and board.side_to_move == Color.BLACK
+        and board.is_in_check(Color.BLACK)
+    ):
+        return 1_000_000
+    if (
+        legal == []
+        and board.side_to_move == Color.WHITE
+        and board.is_in_check(Color.WHITE)
+    ):
+        return -1_000_000
+    if (
+        legal == []
+        and not board.is_in_check(Color.WHITE)
+        and not board.is_in_check(Color.BLACK)
+    ):
+        return 0
+
+    if board.side_to_move == Color.WHITE:
+        if score >= beta:
+            return score
+        elif score > alpha:
+            alpha = score
+            for capture in [m for m in legal if board.piece_at(m.to_sq) is not None]:
+                board.make_move(capture)
+                score = quiesce(board, alpha, beta, eval_fn)
+                alpha = max(alpha, score)
+                board.undo_move()
+                if alpha >= beta:
+                    break
+    elif board.side_to_move == Color.BLACK:
+        if score <= alpha:
+            return score
+        elif score < beta:
+            beta = score
+            for capture in [m for m in legal if board.piece_at(m.to_sq) is not None]:
+                board.make_move(capture)
+                score = quiesce(board, alpha, beta, eval_fn)
+                beta = min(beta, score)
+                board.undo_move()
+                if beta <= alpha:
+                    break
+
+    return score
