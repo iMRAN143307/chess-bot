@@ -35,7 +35,7 @@ def order_moves(board: Board, moves: list[Move]) -> list[Move]:
                 move_value_dict[move_obj] -= PIECE_VALUE_KAUFMAN[from_piece.kind] / 100
         sorted_move_value_dict = [
             k
-            for k, v in sorted(
+            for k, _ in sorted(
                 move_value_dict.items(), key=lambda item: item[1], reverse=True
             )
         ]
