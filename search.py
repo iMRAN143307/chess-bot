@@ -130,9 +130,6 @@ def search_iterative(board, eval_fn, max_depth, time_budget_ms=None):
     best_move = search(board, 1, eval_fn)
     times_list = [(time.perf_counter()*1000) - time_elapsed_ms, (time.perf_counter()*1000) - time_elapsed_ms]
     for i in range(max_depth - 1):
-        print(time_budget_ms)
-        print((time.perf_counter()*1000) - time_elapsed_ms)
-        print(i + 2)
         if best_move[0] >= 900_000:
             break
         if best_move[0] <= -900_000:
