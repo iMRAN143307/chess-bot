@@ -128,15 +128,20 @@ def search(
 def search_iterative(board, eval_fn, max_depth, time_budget_ms=None):
     time_elapsed_ms = time.perf_counter() * 1000
     best_move = search(board, 1, eval_fn)
+    times_list = [(time.perf_counter()*1000) - time_elapsed_ms, (time.perf_counter()*1000) - time_elapsed_ms]
     for i in range(max_depth - 1):
+        print(time_budget_ms)
+        print((time.perf_counter()*1000) - time_elapsed_ms)
+        print(i + 2)
         if best_move[0] >= 900_000:
             break
         if best_move[0] <= -900_000:
             break
         if time_budget_ms is not None:
-            if time_elapsed_ms >= time_budget_ms:
+            if (((time.perf_counter() * 1000) - time_elapsed_ms) * (((time.perf_counter() * 1000) - time_elapsed_ms) / times_list[-1])) >= time_budget_ms:
                 break
         best_move = search(board, i + 2, eval_fn, -1_000_000, 1_000_000, best_move)
+        times_list.append((time.perf_counter()*1000) - time_elapsed_ms)
     return best_move
 
 def quiesce(board, alpha, beta, eval_fn):

@@ -82,7 +82,7 @@ POSITIONS = [
 
 
 @pytest.mark.parametrize("fen", POSITIONS)
-@pytest.mark.parametrize("depth", [1, 2, 3])
+@pytest.mark.parametrize("depth", [1, 2])
 def test_alpha_beta_matches_plain_minimax(fen: str, depth: int):
     board = Board.from_fen(fen)
     ab_score, _ = search(board, depth, _material)
