@@ -7,6 +7,8 @@ A chess bot on Lichess
 
 You can play against it at https://lichess.org/@/imran-bot
 
+Or watch me lose to it at https://drive.google.com/file/d/1V--AVY2N5XmqIShdfhHoCMPMy3Kk2zgx/view?usp=sharing
+
 There is a chess software development kit that takes these files and speaks UCI. I don't know exactly how it works
 
 Feel free to contribute to the code by creating a new branch and changing things
