@@ -1,7 +1,9 @@
 # Chess-Bot
-<img width="779" height="781" alt="87cc4193-ff6b-4e14-b1a5-fc449c564e3c" src="https://github.com/user-attachments/assets/b8f826a9-7b2f-43c5-8148-ed480a1e5d38" />
--------------------------
-A chess bot on Lichess
+<img width="779" height="781" alt="87cc4193-ff6b-4e14-b1a5-fc449c564e3c" src="https://github.com/user-attachments/assets/b8f826a9-7b2f-43c5-8148-ed480a1e5d38" />  
+
+-------------------------  
+
+A chess bot on Lichess  
 
 You can play against it at https://lichess.org/@/imran-bot
 
